@@ -389,10 +389,9 @@ def main():
         print(f"{'='*55}")
         print("  1. Daftarkan diri (isi data diri)")
         print("  2. Lihat semua jadwal penerbangan")
-        print("  3. Cari penerbangan")
-        print("  4. Pesan tiket")
-        print("  5. Lihat riwayat pemesanan")
-        print("  6. Demo Polymorphism")
+        print("  3. Pesan tiket")
+        print("  4. Lihat riwayat pemesanan")
+        print("  5. Demo Polymorphism")
         print("  0. Keluar")
         print(f"{'='*55}")
 
@@ -414,10 +413,6 @@ def main():
             sistem.tampilkan_semua_penerbangan()
 
         elif pilihan == "3":
-            tujuan = input("  Masukkan tujuan: ").strip()
-            sistem.cari_penerbangan(tujuan)
-
-        elif pilihan == "4":
             if not penumpang:
                 print("\n  [✗] Kamu belum daftar! Pilih menu 1 dulu.")
                 continue
@@ -442,13 +437,13 @@ def main():
             print(f"\n  → {penumpang.get_nama()} memesan Tiket {kelas_tiket.upper()} ke {penerbangan.tujuan}:")
             penumpang.pesan_tiket(penerbangan, kelas_tiket)
 
-        elif pilihan == "5":
+        elif pilihan == "4":
             if not penumpang:
                 print("\n  [✗] Kamu belum daftar! Pilih menu 1 dulu.")
                 continue
             penumpang.riwayat_pemesanan()
 
-        elif pilihan == "6":
+        elif pilihan == "5":
             if not sistem.daftar_penerbangan:
                 print("\n  [✗] Tidak ada penerbangan.")
                 continue
