@@ -1,10 +1,4 @@
 """
-=============================================================
-  SISTEM RESERVASI TIKET PESAWAT
-  Study Case: Object-Oriented Programming (OOP) in Python
-  By: Tamam Ni'amillah Ramdhan Putra Widyana (462025611095)
-  University of Darussalam Gontor - 2025/2026
-=============================================================
 
 Konsep OOP yang Diterapkan:
   1. Encapsulation  → Melindungi data internal (atribut private/protected)
@@ -392,12 +386,6 @@ class SistemReservasi:
 # ============================================================
 
 def main():
-    print("\n" + "=" * 60)
-    print("   SISTEM RESERVASI TIKET PESAWAT")
-    print("   OOP Study Case — Tamam Ni'amillah (462025611095)")
-    print("   University of Darussalam Gontor 2025/2026")
-    print("=" * 60)
-
     sistem = SistemReservasi()
     penumpang = None
 
