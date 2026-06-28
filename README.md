@@ -9,4 +9,4 @@ Repository tugas mata kuliah PBO.
 - **Tugas 6** - Multiple Inheritance**
 - **Tugas 7** - Method Overriding **
 - **Tugas 8** - Exception Handling*
-- **Tugas UTS** - all**
+- **Tugas UTS** - pembuatan sistem pemensanan tiket pesawat**
