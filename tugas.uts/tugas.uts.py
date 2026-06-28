@@ -110,9 +110,9 @@ class Penumpang(Pengguna):
         self._nomor_paspor = nomor_paspor
         self.__riwayat_pemesanan = []  # Private list tiket
 
-    def pesan_tiket(self, penerbangan, kelas_tiket: str) -> 'Tiket | None':
+    def pesan_tiket(self, penerbangan, kelas_tiket: str, nomor_kursi: str = None) -> 'Tiket | None':
         """Penumpang memesan kursi pada penerbangan tertentu."""
-        kursi = penerbangan.pesan_kursi(self, kelas_tiket)
+        kursi = penerbangan.pesan_kursi(self, kelas_tiket, nomor_kursi)
         if kursi:
             # Buat objek tiket sesuai kelas
             if kelas_tiket.lower() == "bisnis":
@@ -177,16 +177,42 @@ class Penerbangan:
                 kode_kursi = f"{nomor}{huruf}"
                 self._status_kursi[kode_kursi] = 'tersedia'
 
-    def pesan_kursi(self, penumpang: Penumpang, kelas_tiket: str) -> str | None:
+    def tampilkan_kursi(self):
+        """Menampilkan denah kursi (tersedia/terpesan) dalam bentuk grid."""
+        print(f"\n  Denah Kursi Penerbangan {self.kode}:")
+        print(f"  {'─'*35}")
+        for nomor in range(1, self._kapasitas + 1):
+            baris = "  "
+            for huruf in ['A', 'B', 'C', 'D', 'E', 'F']:
+                kode = f"{nomor}{huruf}"
+                if self._status_kursi.get(kode) == 'tersedia':
+                    baris += f"[{kode}] "
+                else:
+                    baris += f"[XX]  "
+            print(baris)
+            if nomor % 2 == 0:
+                print()
+        print(f"  [XX] = Terisi  |  [1A] = Tersedia")
+        print(f"  {'─'*35}")
+
+    def pesan_kursi(self, penumpang: Penumpang, kelas_tiket: str, nomor_kursi: str = None) -> str | None:
         """
-        Metode utama pemesanan kursi.
-        Encapsulation: Validasi dilakukan di dalam — tidak bisa di-bypass dari luar.
-        Mengembalikan nomor kursi jika berhasil, None jika gagal.
+        Memesan kursi tertentu (atau otomatis jika tidak ditentukan).
         """
-        # Cari kursi tersedia pertama
+        if nomor_kursi:
+            if nomor_kursi not in self._status_kursi:
+                print(f"\n[✗] Kursi {nomor_kursi} tidak valid.")
+                return None
+            if self._status_kursi[nomor_kursi] != 'tersedia':
+                print(f"\n[✗] Kursi {nomor_kursi} sudah dipesan orang lain!")
+                return None
+            self._status_kursi[nomor_kursi] = 'terpesan'
+            self._daftar_penumpang_terdaftar[nomor_kursi] = penumpang
+            print(f"\n[✓] Kursi {nomor_kursi} berhasil dipesan untuk {penumpang.get_nama()}.")
+            return nomor_kursi
+
         for nomor_kursi, status in self._status_kursi.items():
             if status == 'tersedia':
-                # Validasi berhasil → ubah status
                 self._status_kursi[nomor_kursi] = 'terpesan'
                 self._daftar_penumpang_terdaftar[nomor_kursi] = penumpang
                 print(f"\n[✓] Kursi {nomor_kursi} berhasil dipesan untuk {penumpang.get_nama()}.")
@@ -434,8 +460,11 @@ def main():
                 kelas_tiket = "ekonomi"
 
             penerbangan = sistem.daftar_penerbangan[kode]
+            penerbangan.tampilkan_kursi()
+            kursi = input("  Masukkan nomor kursi (misal 1A) atau Enter untuk otomatis: ").strip().upper()
+
             print(f"\n  → {penumpang.get_nama()} memesan Tiket {kelas_tiket.upper()} ke {penerbangan.tujuan}:")
-            penumpang.pesan_tiket(penerbangan, kelas_tiket)
+            penumpang.pesan_tiket(penerbangan, kelas_tiket, kursi if kursi else None)
 
         elif pilihan == "4":
             if not penumpang:
