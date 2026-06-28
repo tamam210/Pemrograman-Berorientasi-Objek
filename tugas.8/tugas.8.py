@@ -172,8 +172,8 @@ print(f"    {andi.info()}")
 print(f"    {budi.info()}")
 
 skenario = [
+    ("Saldo tidak cukup", "transfer", "002", "003", 8_000_000),
     ("Transfer normal",   "transfer", "001", "002", 3_000_000),
-    ("Saldo tidak cukup", "transfer", "001", "002", 100_000_000),
     ("Rekening tidak ada","transfer", "001", "999", 1_000_000),
     ("Jumlah negatif",    "transfer", "001", "002", -5000),
     ("Melebihi batas",    "transfer", "001", "002", 15_000_000),
