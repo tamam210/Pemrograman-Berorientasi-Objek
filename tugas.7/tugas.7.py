@@ -1,8 +1,3 @@
-"""
-TUGAS 7 - Polymorphism (Method Overriding & Duck Typing)
-Pemrograman Berorientasi Objek
-"""
-
 # =============================================================
 # 1. METHOD OVERRIDING
 #    Subclass memberikan implementasi unik pada method warisan
