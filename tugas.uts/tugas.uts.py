@@ -8,6 +8,7 @@ Konsep OOP yang Diterapkan:
 
 import uuid
 import datetime
+import os
 
 
 # ============================================================
@@ -131,7 +132,8 @@ class Penumpang(Pengguna):
             print(f"\n[{i}] Kode Tiket : {tiket.get_kode_tiket()}")
             print(f"    Rute      : {tiket.penerbangan.asal} → {tiket.penerbangan.tujuan}")
             print(f"    Kursi     : {tiket.nomor_kursi}")
-            print(f"    Kelas     : {tiket.__class__.__name__}")
+            kelas = getattr(tiket, '_kelas', tiket.__class__.__name__)
+            print(f"    Kelas     : {kelas}")
             print(f"    Harga     : Rp {tiket.hitung_harga_akhir():,.0f}")
 
 
@@ -344,6 +346,28 @@ class TiketBisnis(KelasTiket):
 # SECTION 8: SISTEM UTAMA (CONTROLLER)
 # ============================================================
 
+class TiketTersimpan:
+    def __init__(self, info):
+        self.__kode_tiket = info[0]
+        self.penerbangan = lambda: None
+        self.penerbangan.kode = info[1]
+        self.nomor_kursi = info[2]
+        self._kelas = info[3]
+        self.waktu_pesan = info[4]
+        self.__harga = int(info[5])
+        self.penerbangan.asal = info[6]
+        self.penerbangan.tujuan = info[7]
+
+    def get_kode_tiket(self):
+        return self.__kode_tiket
+
+    def hitung_harga_akhir(self):
+        return self.__harga
+
+
+DATA_FILE = "data_reservasi.txt"
+
+
 class SistemReservasi:
     """
     Kelas controller — mengelola seluruh data penerbangan dan pengguna.
@@ -352,6 +376,48 @@ class SistemReservasi:
     def __init__(self):
         self.daftar_penerbangan = {}  # {kode: Penerbangan}
         self.daftar_pengguna = {}     # {id: Pengguna}
+
+    def simpan_data(self, id_aktif=None):
+        with open(DATA_FILE, "w") as f:
+            if id_aktif:
+                f.write(f"AKTIF|{id_aktif}\n")
+            for pid, p in self.daftar_pengguna.items():
+                if isinstance(p, Penumpang):
+                    f.write(f"P|{p._id_pengguna}|{p._nama}|{p._email}|{p._telepon}|{p._nomor_paspor}\n")
+                    for t in p._Penumpang__riwayat_pemesanan:
+                        kelas = getattr(t, '_kelas', t.__class__.__name__)
+                        f.write(f"T|{p._id_pengguna}|{t.get_kode_tiket()}|{t.penerbangan.kode}|"
+                                f"{t.nomor_kursi}|{kelas}|{t.waktu_pesan}|"
+                                f"{int(t.hitung_harga_akhir())}|{t.penerbangan.asal}|{t.penerbangan.tujuan}\n")
+            for kode, pnb in self.daftar_penerbangan.items():
+                for kursi, status in pnb._status_kursi.items():
+                    f.write(f"S|{kode}|{kursi}|{status}\n")
+
+    def muat_data(self):
+        if not os.path.exists(DATA_FILE):
+            return None
+        id_aktif = None
+        with open(DATA_FILE) as f:
+            for baris in f:
+                baris = baris.strip()
+                if not baris:
+                    continue
+                parts = baris.split("|")
+                if parts[0] == "AKTIF":
+                    id_aktif = parts[1]
+                elif parts[0] == "P":
+                    p = Penumpang(parts[2], parts[3], parts[4], parts[5])
+                    p._id_pengguna = parts[1]
+                    self.daftar_pengguna[parts[1]] = p
+                elif parts[0] == "T":
+                    pid = parts[1]
+                    if pid in self.daftar_pengguna:
+                        t = TiketTersimpan(parts[2:])
+                        self.daftar_pengguna[pid]._Penumpang__riwayat_pemesanan.append(t)
+                elif parts[0] == "S":
+                    if parts[1] in self.daftar_penerbangan:
+                        self.daftar_penerbangan[parts[1]]._status_kursi[parts[2]] = parts[3]
+        return id_aktif
 
     def tampilkan_semua_penerbangan(self):
         if not self.daftar_penerbangan:
@@ -389,13 +455,16 @@ def main():
     sistem = SistemReservasi()
     penumpang = None
 
-    # Inisialisasi Admin & jadwal penerbangan
     admin = Admin("Admin", "admin@airline.com", "081234567890", "ADMIN123")
     sistem.daftarkan_pengguna(admin)
-
     admin.tambah_penerbangan(sistem, "GA-101", "Jakarta (CGK)", "Surabaya (SUB)", "2025-07-10 08:00", 10, 750_000)
     admin.tambah_penerbangan(sistem, "JT-202", "Jakarta (CGK)", "Bali (DPS)", "2025-07-12 14:00", 10, 1_200_000)
     admin.tambah_penerbangan(sistem, "ID-303", "Surabaya (SUB)", "Makassar (UPG)", "2025-07-15 10:30", 5, 900_000)
+
+    aktif_id = sistem.muat_data()
+    if aktif_id and aktif_id in sistem.daftar_pengguna:
+        penumpang = sistem.daftar_pengguna[aktif_id]
+        print(f"\n[✓] Selamat datang kembali, {penumpang.get_nama()}!")
 
     while True:
         print(f"\n{'='*55}")
@@ -422,6 +491,7 @@ def main():
             penumpang = Penumpang(nama, email, telepon, paspor)
             sistem.daftarkan_pengguna(penumpang)
             penumpang.tampilkan_profil()
+            sistem.simpan_data(penumpang.get_id())
 
         elif pilihan == "2":
             sistem.tampilkan_semua_penerbangan()
@@ -453,6 +523,7 @@ def main():
 
             print(f"\n  → {penumpang.get_nama()} memesan Tiket {kelas_tiket.upper()} ke {penerbangan.tujuan}:")
             penumpang.pesan_tiket(penerbangan, kelas_tiket, kursi if kursi else None)
+            sistem.simpan_data(penumpang.get_id())
 
         elif pilihan == "4":
             if not penumpang:
@@ -480,6 +551,7 @@ def main():
                 print()
 
         elif pilihan == "0":
+            sistem.simpan_data(penumpang.get_id() if penumpang else None)
             print("\n  Terima kasih telah menggunakan sistem reservasi!")
             print(f"  Konsep OOP yang telah didemonstrasikan:")
             print(f"  1. Encapsulation : Atribut protected/private")
