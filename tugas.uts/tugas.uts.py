@@ -365,33 +365,6 @@ class SistemReservasi:
 # SECTION 9: DEMONSTRASI PROGRAM (MAIN)
 # ============================================================
 
-def demo_polymorphism(penerbangan: Penerbangan):
-    """
-    Demo eksplisit Polymorphism:
-    Memanggil hitung_harga_akhir() dari dua objek bertipe berbeda.
-    Sistem tidak perlu tahu detailnya — polimorfisme menangani sendiri.
-    """
-    print(f"\n{'='*55}")
-    print(f"  DEMO POLYMORPHISM — hitung_harga_akhir()")
-    print(f"  Penerbangan: {penerbangan.kode}")
-    print(f"{'='*55}")
-    print("  Sistem cukup memanggil SATU metode yang sama,")
-    print("  tapi hasilnya BERBEDA untuk tiap kelas tiket:\n")
-
-    penumpang_dummy = Penumpang("Demo User", "demo@test.com", "08000000", "X999")
-    tiket_list = [
-        TiketEkonomi(penumpang_dummy, penerbangan, "10A"),
-        TiketBisnis(penumpang_dummy, penerbangan, "1A"),
-    ]
-
-    for tiket in tiket_list:
-        # Polymorphism: sama-sama dipanggil hitung_harga_akhir(),
-        # tapi logikanya berbeda tergantung tipe objek nyatanya
-        print(f"  [{tiket.__class__.__name__}]")
-        tiket.cetak_rincian_harga()
-        print()
-
-
 def main():
     print("\n" + "=" * 60)
     print("   SISTEM RESERVASI TIKET PESAWAT")
@@ -399,153 +372,111 @@ def main():
     print("   University of Darussalam Gontor 2025/2026")
     print("=" * 60)
 
-    # --------------------------------------------------
-    # 1. Inisialisasi Sistem
-    # --------------------------------------------------
     sistem = SistemReservasi()
+    penumpang = None
 
-    # --------------------------------------------------
-    # 2. Buat Admin (Inheritance: Admin ← Pengguna)
-    # --------------------------------------------------
-    print("\n[TAHAP 1] Membuat Admin & Mendaftarkan Pengguna")
-    print("-" * 50)
-    admin = Admin(
-        nama="Budi Santoso",
-        email="budi.admin@airline.com",
-        telepon="081234567890",
-        kode_admin="ADMIN123"
-    )
+    # Inisialisasi Admin & jadwal penerbangan
+    admin = Admin("Admin", "admin@airline.com", "081234567890", "ADMIN123")
     sistem.daftarkan_pengguna(admin)
-    admin.tampilkan_profil()
 
-    # --------------------------------------------------
-    # 3. Admin menambahkan jadwal penerbangan
-    # --------------------------------------------------
-    print("\n[TAHAP 2] Admin Menambahkan Jadwal Penerbangan")
-    print("-" * 50)
-    admin.tambah_penerbangan(
-        sistem,
-        kode="GA-101",
-        asal="Jakarta (CGK)",
-        tujuan="Surabaya (SUB)",
-        jadwal="2025-07-10 08:00",
-        kapasitas=10,
-        harga_dasar=750_000
-    )
-    admin.tambah_penerbangan(
-        sistem,
-        kode="JT-202",
-        asal="Jakarta (CGK)",
-        tujuan="Bali (DPS)",
-        jadwal="2025-07-12 14:00",
-        kapasitas=10,
-        harga_dasar=1_200_000
-    )
-    admin.tambah_penerbangan(
-        sistem,
-        kode="ID-303",
-        asal="Surabaya (SUB)",
-        tujuan="Makassar (UPG)",
-        jadwal="2025-07-15 10:30",
-        kapasitas=5,
-        harga_dasar=900_000
-    )
+    admin.tambah_penerbangan(sistem, "GA-101", "Jakarta (CGK)", "Surabaya (SUB)", "2025-07-10 08:00", 10, 750_000)
+    admin.tambah_penerbangan(sistem, "JT-202", "Jakarta (CGK)", "Bali (DPS)", "2025-07-12 14:00", 10, 1_200_000)
+    admin.tambah_penerbangan(sistem, "ID-303", "Surabaya (SUB)", "Makassar (UPG)", "2025-07-15 10:30", 5, 900_000)
 
-    # --------------------------------------------------
-    # 4. Tampilkan semua penerbangan
-    # --------------------------------------------------
-    print("\n[TAHAP 3] Menampilkan Semua Jadwal Penerbangan")
-    print("-" * 50)
-    admin.lihat_semua_penerbangan(sistem)
+    while True:
+        print(f"\n{'='*55}")
+        print("  MENU UTAMA")
+        print(f"{'='*55}")
+        print("  1. Daftarkan diri (isi data diri)")
+        print("  2. Lihat semua jadwal penerbangan")
+        print("  3. Cari penerbangan")
+        print("  4. Pesan tiket")
+        print("  5. Lihat riwayat pemesanan")
+        print("  6. Demo Polymorphism")
+        print("  0. Keluar")
+        print(f"{'='*55}")
 
-    # --------------------------------------------------
-    # 5. Buat Penumpang (Inheritance: Penumpang ← Pengguna)
-    # --------------------------------------------------
-    print("\n[TAHAP 4] Mendaftarkan Penumpang")
-    print("-" * 50)
-    penumpang1 = Penumpang(
-        nama="Siti Rahayu",
-        email="siti@gmail.com",
-        telepon="082345678901",
-        nomor_paspor="A1234567"
-    )
-    penumpang2 = Penumpang(
-        nama="Ahmad Fauzi",
-        email="fauzi@gmail.com",
-        telepon="083456789012",
-        nomor_paspor="B9876543"
-    )
-    sistem.daftarkan_pengguna(penumpang1)
-    sistem.daftarkan_pengguna(penumpang2)
-    penumpang1.tampilkan_profil()
-    penumpang2.tampilkan_profil()
+        pilihan = input("Pilih menu: ").strip()
 
-    # --------------------------------------------------
-    # 6. Pencarian penerbangan
-    # --------------------------------------------------
-    print("\n[TAHAP 5] Penumpang Mencari Penerbangan ke Bali")
-    print("-" * 50)
-    sistem.cari_penerbangan("Bali")
+        if pilihan == "1":
+            print(f"\n{'='*50}")
+            print("  REGISTRASI PENUMPANG")
+            print(f"{'='*50}")
+            nama = input("  Nama\t\t: ").strip()
+            email = input("  Email\t\t: ").strip()
+            telepon = input("  Telepon\t: ").strip()
+            paspor = input("  No. Paspor\t: ").strip()
+            penumpang = Penumpang(nama, email, telepon, paspor)
+            sistem.daftarkan_pengguna(penumpang)
+            penumpang.tampilkan_profil()
 
-    # --------------------------------------------------
-    # 7. Pemesanan Tiket (Encapsulation + Polymorphism)
-    # --------------------------------------------------
-    print("\n[TAHAP 6] Pemesanan Tiket")
-    print("-" * 50)
+        elif pilihan == "2":
+            sistem.tampilkan_semua_penerbangan()
 
-    # Penumpang 1: pesan kelas Ekonomi ke Bali
-    penerbangan_bali = sistem.daftar_penerbangan["JT-202"]
-    print(f"\n→ {penumpang1.get_nama()} memesan Tiket EKONOMI ke Bali:")
-    penumpang1.pesan_tiket(penerbangan_bali, "ekonomi")
+        elif pilihan == "3":
+            tujuan = input("  Masukkan tujuan: ").strip()
+            sistem.cari_penerbangan(tujuan)
 
-    # Penumpang 2: pesan kelas Bisnis ke Bali
-    print(f"\n→ {penumpang2.get_nama()} memesan Tiket BISNIS ke Bali:")
-    penumpang2.pesan_tiket(penerbangan_bali, "bisnis")
+        elif pilihan == "4":
+            if not penumpang:
+                print("\n  [✗] Kamu belum daftar! Pilih menu 1 dulu.")
+                continue
+            if not sistem.daftar_penerbangan:
+                print("\n  [✗] Tidak ada penerbangan tersedia.")
+                continue
 
-    # Penumpang 1: pesan lagi ke Surabaya
-    penerbangan_sby = sistem.daftar_penerbangan["GA-101"]
-    print(f"\n→ {penumpang1.get_nama()} memesan Tiket EKONOMI ke Surabaya:")
-    penumpang1.pesan_tiket(penerbangan_sby, "ekonomi")
+            sistem.tampilkan_semua_penerbangan()
+            kode = input("\n  Masukkan kode penerbangan: ").strip().upper()
+            if kode not in sistem.daftar_penerbangan:
+                print(f"\n  [✗] Kode '{kode}' tidak ditemukan.")
+                continue
 
-    # --------------------------------------------------
-    # 8. Lihat Riwayat Pemesanan (Encapsulation: private list)
-    # --------------------------------------------------
-    print("\n[TAHAP 7] Melihat Riwayat Pemesanan")
-    print("-" * 50)
-    penumpang1.riwayat_pemesanan()
-    penumpang2.riwayat_pemesanan()
+            print("  Kelas: (e) Ekonomi / (b) Bisnis")
+            kelas = input("  Pilih kelas: ").strip().lower()
+            if kelas == "b":
+                kelas_tiket = "bisnis"
+            else:
+                kelas_tiket = "ekonomi"
 
-    # --------------------------------------------------
-    # 9. Demo eksplisit Polymorphism
-    # --------------------------------------------------
-    print("\n[TAHAP 8] Demo Eksplisit POLYMORPHISM")
-    print("-" * 50)
-    demo_polymorphism(penerbangan_bali)
+            penerbangan = sistem.daftar_penerbangan[kode]
+            print(f"\n  → {penumpang.get_nama()} memesan Tiket {kelas_tiket.upper()} ke {penerbangan.tujuan}:")
+            penumpang.pesan_tiket(penerbangan, kelas_tiket)
 
-    # --------------------------------------------------
-    # 10. Sisa kursi setelah pemesanan (Encapsulation)
-    # --------------------------------------------------
-    print("\n[TAHAP 9] Cek Sisa Kursi (Encapsulation)")
-    print("-" * 50)
-    print(f"  Penerbangan {penerbangan_bali.kode}: "
-          f"{penerbangan_bali.cek_kursi_tersedia()} kursi tersisa")
-    print(f"  Penerbangan {penerbangan_sby.kode}: "
-          f"{penerbangan_sby.cek_kursi_tersedia()} kursi tersisa")
+        elif pilihan == "5":
+            if not penumpang:
+                print("\n  [✗] Kamu belum daftar! Pilih menu 1 dulu.")
+                continue
+            penumpang.riwayat_pemesanan()
 
-    # --------------------------------------------------
-    # 11. Admin hapus penerbangan
-    # --------------------------------------------------
-    print("\n[TAHAP 10] Admin Menghapus Penerbangan ID-303")
-    print("-" * 50)
-    admin.hapus_penerbangan(sistem, "ID-303")
-    admin.lihat_semua_penerbangan(sistem)
+        elif pilihan == "6":
+            if not sistem.daftar_penerbangan:
+                print("\n  [✗] Tidak ada penerbangan.")
+                continue
+            kode = list(sistem.daftar_penerbangan.keys())[0]
+            pnb = sistem.daftar_penerbangan[kode]
 
-    print("\n" + "=" * 60)
-    print("  PROGRAM SELESAI — Semua konsep OOP berhasil didemonstrasikan")
-    print("  1. Encapsulation : Atribut protected/private + akses via metode")
-    print("  2. Inheritance   : Admin & Penumpang mewarisi kelas Pengguna")
-    print("  3. Polymorphism  : hitung_harga_akhir() berbeda tiap jenis tiket")
-    print("=" * 60)
+            print(f"\n{'='*55}")
+            print(f"  DEMO POLYMORPHISM — hitung_harga_akhir()")
+            print(f"  Penerbangan: {pnb.kode}")
+            print(f"{'='*55}")
+            print("  Metode SAMA, hasil BERBEDA:\n")
+
+            dummy = Penumpang("Demo", "demo@test.com", "0", "X999")
+            for tiket in [TiketEkonomi(dummy, pnb, "10A"), TiketBisnis(dummy, pnb, "1A")]:
+                print(f"  [{tiket.__class__.__name__}]")
+                tiket.cetak_rincian_harga()
+                print()
+
+        elif pilihan == "0":
+            print("\n  Terima kasih telah menggunakan sistem reservasi!")
+            print(f"  Konsep OOP yang telah didemonstrasikan:")
+            print(f"  1. Encapsulation : Atribut protected/private")
+            print(f"  2. Inheritance   : Admin & Penumpang ← Pengguna")
+            print(f"  3. Polymorphism  : hitung_harga_akhir()")
+            break
+
+        else:
+            print("\n  [✗] Pilihan tidak valid. Coba lagi.")
 
 
 if __name__ == "__main__":
